@@ -1,60 +1,76 @@
 /**
- * API 服务层 - Axios 封装
+ * API 服务配置
  *
- * 该模块封装了 Axios HTTP 客户端，提供统一的请求/响应拦截器，
- * 自动处理 Token 认证和错误响应。
+ * 全局 Axios 实例配置，包括拦截器和基础 URL。
+ * 提供 Mock 数据的开关或占位。
  */
 
-import axios from 'axios'
+import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import { useAuthStore } from '@/stores/authStore'
 
-// 创建 Axios 实例
+// 从环境变量获取 API 地址，默认为本地
+const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+    baseURL,
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
     },
 })
 
-/**
- * 请求拦截器
- * 在每个请求发送前自动添加 Authorization 头
- */
+// 请求拦截器：添加 Token
 api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token')
-        if (token) {
+    (config: InternalAxiosRequestConfig) => {
+        // 从 zustand store 获取 token
+        // 注意：在组件外部使用 hooks 需要小心，这里直接使用 useAuthStore.getState()
+        const token = useAuthStore.getState().token
+
+        if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`
         }
         return config
     },
-    (error) => {
+    (error: AxiosError) => {
         return Promise.reject(error)
     }
 )
 
-/**
- * 响应拦截器
- * 统一处理响应数据和错误
- */
+// 响应拦截器：统一错误处理
 api.interceptors.response.use(
     (response) => {
-        // 直接返回 data 中的 data 字段
-        return response.data.data
+        // 假设后端返回格式为 { code: 200, data: ..., message: ... }
+        // 如果是直接返回数据，则直接返回 response.data
+        return response
     },
-    (error) => {
-        // 处理 401 未授权错误
-        if (error.response?.status === 401) {
-            localStorage.removeItem('token')
-            window.location.href = '/login'
+    (error: AxiosError) => {
+        if (error.response) {
+            // 处理 401 未授权
+            if (error.response.status === 401) {
+                // 清除 Token 并重定向（可选，或由组件内的 effect 处理）
+                useAuthStore.getState().logout()
+                // window.location.href = '/login' // 尽量避免直接操作 location
+            }
+
+            // 可以添加更具体的错误处理逻辑
+            console.error('API Error:', error.response.data || error.message)
         }
-
-        // 提取错误信息
-        const message = error.response?.data?.message || error.message || '请求失败'
-        console.error('API 请求错误:', message)
-
         return Promise.reject(error)
     }
 )
 
 export default api
+
+// --- Mock 接口预留 ---
+
+export const mockApi = {
+    // 模拟审批列表
+    getApprovals: async () => {
+        await new Promise(resolve => setTimeout(resolve, 500)) // 模拟延迟
+        return [
+            { id: 1, title: '请假申请 - 张三', status: 'pending', createdAt: '2023-10-01' },
+            { id: 2, title: '报销申请 - 李四', status: 'approved', createdAt: '2023-09-28' },
+            { id: 3, title: '设备采购 - 王五', status: 'rejected', createdAt: '2023-09-25' },
+        ]
+    }
+}

@@ -30,7 +30,8 @@ export default function ProtectedRoute({
     redirectTo = '/login',
 }: ProtectedRouteProps) {
     const location = useLocation()
-    const { isAuthenticated, user } = useAuthStore()
+    const { token, user } = useAuthStore()
+    const isAuthenticated = !!token
 
     // 检查是否已登录
     if (!isAuthenticated) {
@@ -58,7 +59,8 @@ export default function ProtectedRoute({
  * 用于登录页等公开页面，已登录用户将被重定向到仪表盘。
  */
 export function PublicRoute() {
-    const { isAuthenticated } = useAuthStore()
+    const { token } = useAuthStore()
+    const isAuthenticated = !!token
 
     // 已登录用户重定向到仪表盘
     if (isAuthenticated) {

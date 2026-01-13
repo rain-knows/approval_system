@@ -6,9 +6,12 @@
 
 import { Routes, Route } from 'react-router-dom'
 import ProtectedRoute, { PublicRoute } from '@/components/layout/ProtectedRoute'
+import { MainLayout } from '@/components/layout/MainLayout'
 import LoginPage from '@/pages/auth/LoginPage'
+import RegisterPage from '@/pages/auth/RegisterPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import ApprovalListPage from '@/pages/approval/ApprovalListPage'
+import { Toaster } from '@/components/ui/sonner'
 
 /**
  * 应用根组件
@@ -17,35 +20,38 @@ import ApprovalListPage from '@/pages/approval/ApprovalListPage'
  */
 function App() {
   return (
-    <Routes>
-      {/* 公开路由 - 已登录用户会被重定向到仪表盘 */}
-      <Route element={<PublicRoute />}>
-        <Route path="/login" element={<LoginPage />} />
-        {/* 后续可添加注册页面 */}
-        {/* <Route path="/register" element={<RegisterPage />} /> */}
-      </Route>
+    <>
+      <Routes>
+        {/* 公开路由 - 已登录用户会被重定向到仪表盘 */}
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Route>
 
-      {/* 受保护路由 - 需要登录 */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/approval" element={<ApprovalListPage />} />
-        {/* 后续可添加更多受保护页面 */}
-        {/* <Route path="/approval/:id" element={<ApprovalDetailPage />} /> */}
-        {/* <Route path="/approval/new" element={<ApprovalCreatePage />} /> */}
-      </Route>
+        {/* 受保护路由 - 需要登录 */}
+        <Route element={<ProtectedRoute />}>
+          {/* 使用 MainLayout 作为布局容器 */}
+          <Route element={<MainLayout />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/approval" element={<ApprovalListPage />} />
+            {/* 后续可添加更多受保护页面 */}
+            {/* <Route path="/approval/:id" element={<ApprovalDetailPage />} /> */}
+            {/* <Route path="/approval/new" element={<ApprovalCreatePage />} /> */}
 
-      {/* 管理员路由 - 需要 admin 或 superadmin 角色 */}
-      <Route element={<ProtectedRoute allowedRoles={['admin', 'superadmin']} />}>
-        {/* <Route path="/admin" element={<AdminPage />} /> */}
-        {/* <Route path="/settings" element={<SettingsPage />} /> */}
-      </Route>
+            {/* 管理员路由 - 需要 admin 或 superadmin 角色 */}
+            {/* 注意：如果 AdminLayout 不同，可以在这里嵌套或分开配置 */}
+            {/* <Route element={<AdminRoute />}> ... </Route> */}
+          </Route>
+        </Route>
 
-      {/* 默认重定向到仪表盘 */}
-      <Route path="/" element={<DashboardPage />} />
+        {/* 默认重定向到仪表盘 */}
+        <Route path="/" element={<DashboardPage />} />
 
-      {/* 404 页面 */}
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+        {/* 404 页面 */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+      <Toaster />
+    </>
   )
 }
 
