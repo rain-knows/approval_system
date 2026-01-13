@@ -266,3 +266,37 @@
     @apply bg-background text-foreground;
   }
 }
+@utility glass {
+  @apply backdrop-blur-md bg-white/70 dark:bg-black/70 border border-white/20 shadow-sm transition-all duration-300;
+}
+
+@utility hover-scale {
+  @apply transition-transform duration-300 ease-out hover:scale-[1.015] active:scale-[0.985];
+}
+
+@utility clickable {
+  @apply cursor-pointer hover-scale;
+}
+
+@utility interactive-card {
+  @apply bg-card text-card-foreground rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-300 hover:border-primary/20;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply antialiased;
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    &::-webkit-scrollbar-track {
+      @apply bg-transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      @apply bg-border rounded-full hover:bg-muted-foreground/30 transition-colors;
+    }
+  }
+}

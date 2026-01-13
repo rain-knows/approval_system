@@ -11,6 +11,12 @@ import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import ApprovalListPage from '@/pages/approval/ApprovalListPage'
+import ApprovalCreatePage from '@/pages/approval/ApprovalCreatePage'
+import ApprovalDetailPage from '@/pages/approval/ApprovalDetailPage'
+import ProfilePage from '@/pages/profile/ProfilePage'
+import NotificationsPage from '@/pages/notifications/NotificationsPage'
+import MemberManagementPage from '@/pages/admin/MemberManagementPage'
+import WorkflowConfigPage from '@/pages/admin/WorkflowConfigPage'
 import { Toaster } from '@/components/ui/sonner'
 
 /**
@@ -34,13 +40,15 @@ function App() {
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/approval" element={<ApprovalListPage />} />
-            {/* 后续可添加更多受保护页面 */}
-            {/* <Route path="/approval/:id" element={<ApprovalDetailPage />} /> */}
-            {/* <Route path="/approval/new" element={<ApprovalCreatePage />} /> */}
+            <Route path="/approval/new" element={<ApprovalCreatePage />} />
+            <Route path="/approval/:id" element={<ApprovalDetailPage />} />
 
-            {/* 管理员路由 - 需要 admin 或 superadmin 角色 */}
-            {/* 注意：如果 AdminLayout 不同，可以在这里嵌套或分开配置 */}
-            {/* <Route element={<AdminRoute />}> ... </Route> */}
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+
+            {/* 管理员路由 */}
+            <Route path="/admin/users" element={<MemberManagementPage />} />
+            <Route path="/admin/workflows" element={<WorkflowConfigPage />} />
           </Route>
         </Route>
 
