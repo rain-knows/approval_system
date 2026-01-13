@@ -18,7 +18,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from '@/components/ui/form'
+} from '../../components/ui/form'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
@@ -82,7 +82,7 @@ export default function RegisterPage() {
                             <FormField
                                 control={form.control}
                                 name="username"
-                                render={({ field }) => (
+                                render={({ field }: { field: any }) => (
                                     <FormItem>
                                         <FormLabel>用户名</FormLabel>
                                         <FormControl>
@@ -95,7 +95,7 @@ export default function RegisterPage() {
                             <FormField
                                 control={form.control}
                                 name="email"
-                                render={({ field }) => (
+                                render={({ field }: { field: any }) => (
                                     <FormItem>
                                         <FormLabel>邮箱</FormLabel>
                                         <FormControl>
@@ -108,7 +108,7 @@ export default function RegisterPage() {
                             <FormField
                                 control={form.control}
                                 name="password"
-                                render={({ field }) => (
+                                render={({ field }: { field: any }) => (
                                     <FormItem>
                                         <FormLabel>密码</FormLabel>
                                         <FormControl>
@@ -121,7 +121,7 @@ export default function RegisterPage() {
                             <FormField
                                 control={form.control}
                                 name="confirmPassword"
-                                render={({ field }) => (
+                                render={({ field }: { field: any }) => (
                                     <FormItem>
                                         <FormLabel>确认密码</FormLabel>
                                         <FormControl>
