@@ -27,10 +27,11 @@
   "code": 200,
   "message": "success",
   "data": {
-    "records": [],
+    "list": [],
     "total": 100,
     "page": 1,
-    "pageSize": 10
+    "pageSize": 10,
+    "totalPages": 10
   },
   "timestamp": 1705103372000
 }
@@ -115,6 +116,27 @@ PUT /api/v1/users/me
 GET /api/v1/users?page=1&pageSize=10&keyword=xxx
 ```
 
+### 3.4 更新密码
+
+```
+PUT /api/v1/users/me/password
+Authorization: Bearer {token}
+
+{
+  "oldPassword": "旧密码",
+  "newPassword": "新密码"
+}
+```
+
+**响应**
+```json
+{
+  "code": 200,
+  "message": "密码修改成功",
+  "data": null
+}
+```
+
 ## 4. 审批接口
 
 ### 4.1 创建审批
@@ -142,7 +164,7 @@ GET /api/v1/approvals?page=1&pageSize=10&status=PENDING&type=LEAVE
 {
   "code": 200,
   "data": {
-    "records": [
+    "list": [
       {
         "id": "uuid-1",
         "title": "请假申请",
@@ -157,7 +179,8 @@ GET /api/v1/approvals?page=1&pageSize=10&status=PENDING&type=LEAVE
     ],
     "total": 50,
     "page": 1,
-    "pageSize": 10
+    "pageSize": 10,
+    "totalPages": 5
   }
 }
 ```
@@ -273,7 +296,166 @@ GET /api/v1/files/download/{id}
 GET /files/{path}
 ```
 
-## 6. 错误码定义
+## 6. 通知接口
+
+### 6.1 获取通知列表
+
+```
+GET /api/v1/notifications?page=1&pageSize=10&read=false
+Authorization: Bearer {token}
+```
+
+**响应**
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "id": "uuid-1",
+        "title": "您有一条新的审批待处理",
+        "content": "张三提交了一份请假申请，等待您审批",
+        "type": "APPROVAL",
+        "relatedId": "approval-uuid-1",
+        "read": false,
+        "createdAt": "2026-01-13 10:00:00"
+      }
+    ],
+    "total": 5,
+    "page": 1,
+    "pageSize": 10,
+    "totalPages": 1
+  }
+}
+```
+
+### 6.2 标记通知已读
+
+```
+PUT /api/v1/notifications/{id}/read
+Authorization: Bearer {token}
+```
+
+### 6.3 全部标记已读
+
+```
+PUT /api/v1/notifications/read-all
+Authorization: Bearer {token}
+```
+
+### 6.4 获取未读通知数量
+
+```
+GET /api/v1/notifications/unread-count
+Authorization: Bearer {token}
+```
+
+**响应**
+```json
+{
+  "code": 200,
+  "data": {
+    "count": 3
+  }
+}
+```
+
+## 7. 工作流接口（管理员）
+
+### 7.1 获取工作流模版列表
+
+```
+GET /api/v1/workflows?page=1&pageSize=10
+Authorization: Bearer {token}
+```
+
+**响应**
+```json
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "id": 1,
+        "name": "请假审批流程",
+        "typeCode": "LEAVE",
+        "description": "员工请假申请审批流程",
+        "nodes": [
+          { "order": 1, "roleName": "直属上级", "roleId": null },
+          { "order": 2, "roleName": "部门经理", "roleId": null }
+        ],
+        "status": 1,
+        "createdAt": "2026-01-01 00:00:00"
+      }
+    ],
+    "total": 5,
+    "page": 1,
+    "pageSize": 10,
+    "totalPages": 1
+  }
+}
+```
+
+### 7.2 创建工作流模版
+
+```
+POST /api/v1/workflows
+Authorization: Bearer {token}
+
+{
+  "name": "报销审批流程",
+  "typeCode": "EXPENSE",
+  "description": "费用报销审批流程",
+  "nodes": [
+    { "order": 1, "roleName": "直属上级" },
+    { "order": 2, "roleName": "财务" }
+  ]
+}
+```
+
+### 7.3 获取工作流详情
+
+```
+GET /api/v1/workflows/{id}
+Authorization: Bearer {token}
+```
+
+### 7.4 更新工作流模版
+
+```
+PUT /api/v1/workflows/{id}
+Authorization: Bearer {token}
+
+{
+  "name": "报销审批流程(更新)",
+  "description": "更新后的描述",
+  "nodes": [
+    { "order": 1, "roleName": "直属上级" },
+    { "order": 2, "roleName": "财务主管" },
+    { "order": 3, "roleName": "财务总监" }
+  ]
+}
+```
+
+### 7.5 删除工作流模版
+
+```
+DELETE /api/v1/workflows/{id}
+Authorization: Bearer {token}
+```
+
+### 7.6 启用/禁用工作流
+
+```
+PUT /api/v1/workflows/{id}/status
+Authorization: Bearer {token}
+
+{
+  "status": 0
+}
+```
+
+## 8. 错误码定义
 
 | 错误码 | HTTP状态 | 说明 |
 |--------|----------|------|
@@ -286,14 +468,18 @@ GET /files/{path}
 | 500 | 500 | 服务器内部错误 |
 | 1001 | 400 | 用户名或密码错误 |
 | 1002 | 400 | 用户已存在 |
+| 1003 | 400 | 原密码错误 |
 | 2001 | 400 | 审批记录不存在 |
 | 2002 | 400 | 当前状态不允许此操作 |
 | 2003 | 403 | 无审批权限 |
 | 3001 | 400 | 文件上传失败 |
 | 3002 | 400 | 文件类型不支持 |
 | 3003 | 400 | 文件大小超出限制 |
+| 4001 | 400 | 通知不存在 |
+| 5001 | 400 | 工作流模版不存在 |
+| 5002 | 400 | 工作流名称已存在 |
 
-## 7. 接口认证
+## 9. 接口认证
 
 除以下接口外，所有接口都需要在 Header 中携带 Token：
 
