@@ -81,6 +81,25 @@ public class JwtTokenProvider {
     }
 
     /**
+     * 从 Token 中获取用户ID
+     * 先获取用户名，然后查询用户ID
+     *
+     * @param token      JWT Token
+     * @param userMapper 用户Mapper（从调用处传入）
+     * @return 用户ID
+     */
+    public Long getUserIdFromToken(String token, com.approval.mapper.SysUserMapper userMapper) {
+        String username = getUsernameFromToken(token);
+        if (userMapper != null) {
+            com.approval.entity.SysUser user = userMapper.selectOne(
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.approval.entity.SysUser>()
+                            .eq(com.approval.entity.SysUser::getUsername, username));
+            return user != null ? user.getId() : null;
+        }
+        return null;
+    }
+
+    /**
      * 从 Token 中获取过期时间
      *
      * @param token JWT Token

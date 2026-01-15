@@ -4,7 +4,7 @@
  * 展示审批记录列表，支持状态筛选和搜索。
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,99 +15,12 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-
+import { getMyApprovals, getStatusBadge, type ApprovalRecord } from '@/services/approvalService'
 
 /**
  * 审批状态类型
  */
-type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'all'
-
-/**
- * 审批项类型
- */
-interface ApprovalItem {
-    id: string
-    title: string
-    type: string
-    applicant: string
-    applicantAvatar?: string
-    status: 'pending' | 'approved' | 'rejected'
-    createdAt: string
-    description: string
-}
-
-// 模拟审批数据
-const mockApprovals: ApprovalItem[] = [
-    {
-        id: '1',
-        title: '年假申请 - 5天',
-        type: '请假',
-        applicant: '张三',
-        status: 'pending',
-        createdAt: '2026-01-13 09:30',
-        description: '因个人事务需要请假5天',
-    },
-    {
-        id: '2',
-        title: '差旅报销 - ¥3,500',
-        type: '报销',
-        applicant: '李四',
-        status: 'pending',
-        createdAt: '2026-01-12 14:20',
-        description: '上海出差交通和住宿费用报销',
-    },
-    {
-        id: '3',
-        title: '采购申请 - 办公设备',
-        type: '采购',
-        applicant: '王五',
-        status: 'approved',
-        createdAt: '2026-01-11 10:00',
-        description: '申请采购10台笔记本电脑',
-    },
-    {
-        id: '4',
-        title: '加班申请 - 周末',
-        type: '加班',
-        applicant: '赵六',
-        status: 'rejected',
-        createdAt: '2026-01-10 16:45',
-        description: '项目紧急需要周末加班',
-    },
-    {
-        id: '5',
-        title: '会议室预定 - 大会议室',
-        type: '预定',
-        applicant: '钱七',
-        status: 'approved',
-        createdAt: '2026-01-09 11:30',
-        description: '预定大会议室进行季度总结会议',
-    },
-]
-
-/**
- * 获取状态标签样式
- *
- * [status] 审批状态
- * 返回：对应的样式类名和文本
- */
-function getStatusBadge(status: ApprovalItem['status']) {
-    const styles = {
-        pending: {
-            className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-            text: '待审批',
-        },
-        approved: {
-            className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-            text: '已通过',
-        },
-        rejected: {
-            className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-            text: '已拒绝',
-        },
-    }
-    return styles[status]
-}
+type ApprovalStatus = 'all' | '0' | '1' | '2' | '3' | '4' | '5'
 
 /**
  * 审批列表页面
@@ -116,38 +29,73 @@ function getStatusBadge(status: ApprovalItem['status']) {
  */
 export default function ApprovalListPage() {
     const navigate = useNavigate()
-    // const { user, logout } = useAuthStore() // Removed unused
 
-    // 筛选状态
+    // 状态
+    const [approvals, setApprovals] = useState<ApprovalRecord[]>([])
+    const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState<ApprovalStatus>('all')
     const [searchQuery, setSearchQuery] = useState('')
 
-    // Removed unused handleLogout
+    // 分页
+    const [page, setPage] = useState(1)
+    const [pageSize] = useState(10)
+    const [total, setTotal] = useState(0)
+    const [totalPages, setTotalPages] = useState(0)
 
-    // 过滤审批列表
-    const filteredApprovals = mockApprovals.filter((item) => {
-        const matchesFilter = filter === 'all' || item.status === filter
-        const matchesSearch =
-            item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.applicant.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.type.toLowerCase().includes(searchQuery.toLowerCase())
-        return matchesFilter && matchesSearch
-    })
+    // 加载数据
+    useEffect(() => {
+        const loadApprovals = async () => {
+            setLoading(true)
+            try {
+                // 将 filter 转换为 API 需要的参数
+                const statusParam = filter === 'all' ? undefined : parseInt(filter)
+                const data = await getMyApprovals(page, pageSize, statusParam)
+
+                setApprovals(data.list)
+                setTotal(data.total)
+                setTotalPages(data.totalPages)
+            } catch (error) {
+                console.error('加载审批列表失败:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        loadApprovals()
+    }, [page, pageSize, filter])
+
+    // 处理筛选变更
+    const handleFilterChange = (newFilter: ApprovalStatus) => {
+        setFilter(newFilter)
+        setPage(1) // 重置页码
+    }
 
     // 筛选按钮列表
     const filterButtons: { label: string; value: ApprovalStatus }[] = [
         { label: '全部', value: 'all' },
-        { label: '待审批', value: 'pending' },
-        { label: '已通过', value: 'approved' },
-        { label: '已拒绝', value: 'rejected' },
+        { label: '待审批', value: '1' },
+        { label: '审批中', value: '2' },
+        { label: '已通过', value: '3' },
+        { label: '已拒绝', value: '4' },
     ]
+
+    // 前端搜索过滤（目前API暂未提供搜索，待后续完善）
+    const displayedApprovals = approvals.filter(item =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.typeCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.typeName.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
     return (
         <div className="min-h-screen bg-background">
-
-
             {/* 主内容区 */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-2xl font-bold tracking-tight">我的申请</h1>
+                    <Button onClick={() => navigate('/approval/new')}>
+                        发起审批
+                    </Button>
+                </div>
+
                 {/* 搜索和筛选栏 */}
                 <div className="flex flex-col sm:flex-row gap-4 mb-6">
                     {/* 搜索框 */}
@@ -166,7 +114,7 @@ export default function ApprovalListPage() {
                             />
                         </svg>
                         <Input
-                            placeholder="搜索审批标题、申请人或类型..."
+                            placeholder="搜索审批标题或类型..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-10"
@@ -174,13 +122,13 @@ export default function ApprovalListPage() {
                     </div>
 
                     {/* 筛选按钮组 */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                         {filterButtons.map((btn) => (
                             <Button
                                 key={btn.value}
                                 variant={filter === btn.value ? 'default' : 'outline'}
                                 size="sm"
-                                onClick={() => setFilter(btn.value)}
+                                onClick={() => handleFilterChange(btn.value)}
                             >
                                 {btn.label}
                             </Button>
@@ -189,82 +137,128 @@ export default function ApprovalListPage() {
                 </div>
 
                 {/* 审批列表 */}
-                <div className="space-y-4">
-                    {filteredApprovals.length === 0 ? (
-                        <Card>
-                            <CardContent className="py-12 text-center">
-                                <svg
-                                    className="w-12 h-12 mx-auto text-muted-foreground mb-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={1.5}
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    />
-                                </svg>
-                                <p className="text-muted-foreground">暂无符合条件的审批记录</p>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        filteredApprovals.map((item) => {
-                            const badge = getStatusBadge(item.status)
-                            return (
-                                <Card
-                                    key={item.id}
-                                    className="hover:shadow-md transition-shadow cursor-pointer"
-                                    onClick={() => navigate(`/approval/${item.id}`)}
-                                >
-                                    <CardHeader className="pb-2">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="px-2 py-0.5 text-xs font-medium rounded bg-secondary text-secondary-foreground">
-                                                        {item.type}
-                                                    </span>
-                                                    <span className={`px-2 py-0.5 text-xs font-medium rounded ${badge.className}`}>
-                                                        {badge.text}
-                                                    </span>
+                {loading ? (
+                    <div className="space-y-4">
+                        {[1, 2, 3].map(i => (
+                            <Card key={i} className="animate-pulse">
+                                <CardHeader className="pb-2">
+                                    <div className="h-6 bg-muted rounded w-1/3 mb-2"></div>
+                                    <div className="h-4 bg-muted rounded w-1/2"></div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="h-4 bg-muted rounded w-full"></div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {displayedApprovals.length === 0 ? (
+                            <Card>
+                                <CardContent className="py-12 text-center">
+                                    <svg
+                                        className="w-12 h-12 mx-auto text-muted-foreground mb-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={1.5}
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                        />
+                                    </svg>
+                                    <p className="text-muted-foreground">暂无符合条件的审批记录</p>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            displayedApprovals.map((item) => {
+                                const badge = getStatusBadge(item.status)
+                                return (
+                                    <Card
+                                        key={item.id}
+                                        className="hover:shadow-md transition-shadow cursor-pointer group"
+                                        onClick={() => navigate(`/approval/${item.id}`)}
+                                    >
+                                        <CardHeader className="pb-2">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="px-2 py-0.5 text-xs font-medium rounded bg-secondary text-secondary-foreground"
+                                                            style={{ backgroundColor: item.typeColor ? `${item.typeColor}20` : undefined, color: item.typeColor }}
+                                                        >
+                                                            {item.typeName}
+                                                        </span>
+                                                        <span className={`px-2 py-0.5 text-xs font-medium rounded ${badge.className}`}>
+                                                            {badge.text}
+                                                        </span>
+                                                        {item.priority && item.priority > 0 && (
+                                                            <span className={`px-2 py-0.5 text-xs font-medium rounded ${item.priority === 2 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>
+                                                                {item.priority === 2 ? '非常紧急' : '紧急'}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <CardTitle className="text-lg group-hover:text-primary transition-colors">{item.title}</CardTitle>
+                                                    <CardDescription className="mt-1 line-clamp-2">
+                                                        {item.content && (() => {
+                                                            try {
+                                                                const content = JSON.parse(item.content)
+                                                                if (item.typeCode === 'LEAVE') {
+                                                                    return `理由: ${content.reason} (${content.days}天)`
+                                                                } else if (item.typeCode === 'EXPENSE') {
+                                                                    return `备注: ${content.remark || '无'} (总额: ¥${content.totalAmount})`
+                                                                } else {
+                                                                    return content.content || item.content
+                                                                }
+                                                            } catch (e) {
+                                                                return item.content
+                                                            }
+                                                        })()}
+                                                    </CardDescription>
                                                 </div>
-                                                <CardTitle className="text-lg">{item.title}</CardTitle>
-                                                <CardDescription className="mt-1">
-                                                    {item.description}
-                                                </CardDescription>
                                             </div>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="pt-0">
-                                        <div className="flex items-center justify-between text-sm text-muted-foreground">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
-                                                    {item.applicant.charAt(0)}
+                                        </CardHeader>
+                                        <CardContent className="pt-0">
+                                            <div className="flex items-center justify-between text-sm text-muted-foreground mt-2">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
+                                                        {item.initiatorName?.charAt(0) || '我'}
+                                                    </div>
+                                                    <span>{item.initiatorName}</span>
                                                 </div>
-                                                <span>{item.applicant}</span>
+                                                <span>{new Date(item.createdAt).toLocaleString()}</span>
                                             </div>
-                                            <span>{item.createdAt}</span>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            )
-                        })
-                    )}
-                </div>
+                                        </CardContent>
+                                    </Card>
+                                )
+                            })
+                        )}
+                    </div>
+                )}
 
-                {/* 分页（简化版） */}
-                {filteredApprovals.length > 0 && (
-                    <div className="flex justify-center mt-8">
-                        <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" disabled>
-                                上一页
-                            </Button>
-                            <span className="px-3 py-1 text-sm">第 1 页，共 1 页</span>
-                            <Button variant="outline" size="sm" disabled>
-                                下一页
-                            </Button>
-                        </div>
+                {/* 分页 */}
+                {total > pageSize && (
+                    <div className="flex justify-center mt-8 space-x-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1 || loading}
+                        >
+                            上一页
+                        </Button>
+                        <span className="flex items-center px-3 text-sm text-muted-foreground">
+                            第 {page} 页，共 {totalPages} 页
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages || loading}
+                        >
+                            下一页
+                        </Button>
                     </div>
                 )}
             </main>

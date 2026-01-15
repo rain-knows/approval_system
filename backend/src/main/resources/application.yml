@@ -30,3 +30,5 @@ jwt:
 file:
   upload-dir: D:/uploads/approval-system
   access-path: /files
+  allowed-types: doc,docx,xls,xlsx,ppt,pptx,pdf,txt,jpg,jpeg,png,gif,zip,rar
+  max-size: 52428800

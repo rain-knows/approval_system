@@ -63,4 +63,21 @@ public class PageResult<T> {
                 .totalPages(totalPages)
                 .build();
     }
+
+    /**
+     * 从 MyBatis-Plus IPage 创建分页结果
+     *
+     * @param ipage MyBatis-Plus 分页对象
+     * @param <T>   数据类型
+     * @return 分页结果
+     */
+    public static <T> PageResult<T> of(com.baomidou.mybatisplus.core.metadata.IPage<T> ipage) {
+        return PageResult.<T>builder()
+                .list(ipage.getRecords())
+                .total(ipage.getTotal())
+                .page((int) ipage.getCurrent())
+                .pageSize((int) ipage.getSize())
+                .totalPages((int) ipage.getPages())
+                .build();
+    }
 }

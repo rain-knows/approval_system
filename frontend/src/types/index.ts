@@ -88,6 +88,8 @@ export interface Attachment {
     fileUrl: string
     /** 上传时间 */
     uploadedAt: string
+    /** 是否支持预览 */
+    previewSupport?: boolean
 }
 
 /**
@@ -95,15 +97,19 @@ export interface Attachment {
  */
 export interface ApprovalNode {
     /** 节点 ID */
-    id: string
+    id: number
+    /** 节点名称 */
+    nodeName: string
     /** 审批人 ID */
-    approverId: string
-    /** 审批人姓名 */
-    approverName: string
-    /** 节点状态 */
-    status: 'pending' | 'approved' | 'rejected'
+    approverId: number
+    /** 节点顺序 */
+    nodeOrder: number
+    /** 节点状态: 0-待审批 1-已通过 2-已拒绝 */
+    status: number
     /** 审批意见 */
     comment?: string
     /** 审批时间 */
     approvedAt?: string
+    /** 创建时间 */
+    createdAt?: string
 }

@@ -72,7 +72,7 @@ export default function RegisterPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-            <Card className="w-full max-w-[400px] border-border/40 shadow-xl bg-card">
+            <Card className="w-full max-w-100 border-border/40 shadow-xl bg-card">
                 <CardHeader className="space-y-2 text-center pb-2">
                     {/* Logo Area */}
                     <div className="mx-auto w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-2">

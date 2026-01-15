@@ -231,7 +231,7 @@ export default function MemberManagementPage() {
                 <div className="p-4 border-b bg-muted/30">
                     <div className="flex flex-wrap gap-4">
                         {/* 关键词搜索 */}
-                        <div className="flex gap-2 flex-1 min-w-[200px]">
+                        <div className="flex gap-2 flex-1 min-w-50">
                             <Input
                                 placeholder="搜索用户名、昵称或邮箱..."
                                 value={keyword}
@@ -252,7 +252,7 @@ export default function MemberManagementPage() {
                                 setPage(1);
                             }}
                         >
-                            <SelectTrigger className="w-[160px]">
+                            <SelectTrigger className="w-40">
                                 <SelectValue placeholder="选择部门" />
                             </SelectTrigger>
                             <SelectContent>
@@ -273,7 +273,7 @@ export default function MemberManagementPage() {
                                 setPage(1);
                             }}
                         >
-                            <SelectTrigger className="w-[120px]">
+                            <SelectTrigger className="w-30">
                                 <SelectValue placeholder="状态" />
                             </SelectTrigger>
                             <SelectContent>

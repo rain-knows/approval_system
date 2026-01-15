@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 interface PageContainerProps {
     children: ReactNode;
     className?: string;
-    title?: string;
+    title?: ReactNode;
     description?: string;
     action?: ReactNode;
 }
