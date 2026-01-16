@@ -278,7 +278,7 @@ export default function WorkflowConfigPage() {
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[250px] p-0" align="start">
+                <PopoverContent className="w-62.5 p-0" align="start">
                     <Command>
                         <CommandInput placeholder="搜索用户..." className="h-9" />
                         <CommandList>
@@ -333,7 +333,7 @@ export default function WorkflowConfigPage() {
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[250px] p-0" align="start">
+                <PopoverContent className="w-62.5 p-0" align="start">
                     <Command>
                         <CommandInput placeholder="搜索职位..." className="h-9" />
                         <CommandList>
