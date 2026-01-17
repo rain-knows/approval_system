@@ -1,10 +1,13 @@
 package com.approval.controller;
 
+import com.approval.annotation.OperLog;
 import com.approval.common.PageResult;
 import com.approval.common.Result;
 import com.approval.dto.ApprovalCreateRequest;
 import com.approval.dto.ApproveRequest;
 import com.approval.entity.ApprovalType;
+import com.approval.enums.LogModule;
+import com.approval.enums.LogOperation;
 import com.approval.mapper.SysUserMapper;
 import com.approval.security.JwtTokenProvider;
 import com.approval.service.ApprovalService;
@@ -57,6 +60,7 @@ public class ApprovalController {
      * @return 审批记录
      */
     @PostMapping
+    @OperLog(module = LogModule.APPROVAL, operation = LogOperation.SUBMIT, description = "发起审批申请")
     public Result<ApprovalRecordVO> createApproval(
             @Valid @RequestBody ApprovalCreateRequest request,
             @RequestHeader("Authorization") String token) {
@@ -76,6 +80,7 @@ public class ApprovalController {
      * @return 分页结果
      */
     @GetMapping("/my")
+    @OperLog(module = LogModule.APPROVAL, operation = LogOperation.QUERY, description = "查询我的申请", logParams = false)
     public Result<PageResult<ApprovalRecordVO>> getMyApprovals(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -95,6 +100,7 @@ public class ApprovalController {
      * @return 分页结果
      */
     @GetMapping("/todo")
+    @OperLog(module = LogModule.APPROVAL, operation = LogOperation.QUERY, description = "查询我的待办", logParams = false)
     public Result<PageResult<ApprovalRecordVO>> getTodoApprovals(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -111,6 +117,7 @@ public class ApprovalController {
      * @return 审批详情
      */
     @GetMapping("/{id}")
+    @OperLog(module = LogModule.APPROVAL, operation = LogOperation.VIEW, description = "查看审批详情")
     public Result<ApprovalRecordVO> getApprovalDetail(@PathVariable String id) {
         ApprovalRecordVO record = approvalService.getApprovalDetail(id);
         return Result.success(record);
@@ -125,6 +132,7 @@ public class ApprovalController {
      * @return 操作结果
      */
     @PostMapping("/{id}/approve")
+    @OperLog(module = LogModule.APPROVAL, operation = LogOperation.APPROVE, description = "审批操作")
     public Result<Void> approveApproval(
             @PathVariable String id,
             @Valid @RequestBody ApproveRequest request,
@@ -143,6 +151,7 @@ public class ApprovalController {
      * @return 操作结果
      */
     @PostMapping("/{id}/withdraw")
+    @OperLog(module = LogModule.APPROVAL, operation = LogOperation.WITHDRAW, description = "撤回审批申请")
     public Result<Void> withdrawApproval(
             @PathVariable String id,
             @RequestHeader("Authorization") String token) {

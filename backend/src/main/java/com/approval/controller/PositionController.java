@@ -1,7 +1,10 @@
 package com.approval.controller;
 
+import com.approval.annotation.OperLog;
 import com.approval.common.Result;
 import com.approval.entity.SysPosition;
+import com.approval.enums.LogModule;
+import com.approval.enums.LogOperation;
 import com.approval.mapper.SysPositionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ public class PositionController {
      * @return 职位列表
      */
     @GetMapping
+    @OperLog(module = LogModule.POSITION, operation = LogOperation.QUERY, description = "查询职位列表", logParams = false)
     public Result<List<SysPosition>> getAllPositions() {
         LambdaQueryWrapper<SysPosition> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysPosition::getStatus, 1);

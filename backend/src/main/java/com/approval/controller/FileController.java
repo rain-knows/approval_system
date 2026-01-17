@@ -1,6 +1,9 @@
 package com.approval.controller;
 
+import com.approval.annotation.OperLog;
 import com.approval.common.Result;
+import com.approval.enums.LogModule;
+import com.approval.enums.LogOperation;
 import com.approval.mapper.SysUserMapper;
 import com.approval.security.JwtTokenProvider;
 import com.approval.service.FileService;
@@ -32,6 +35,7 @@ public class FileController {
      * @return 附件信息
      */
     @PostMapping("/upload")
+    @OperLog(module = LogModule.FILE, operation = LogOperation.UPLOAD, description = "上传文件")
     public Result<AttachmentVO> upload(
             @RequestParam("file") MultipartFile file,
             @RequestHeader("Authorization") String token) {
@@ -51,6 +55,7 @@ public class FileController {
      * @return 附件信息
      */
     @GetMapping("/{id}")
+    @OperLog(module = LogModule.FILE, operation = LogOperation.VIEW, description = "查看附件信息")
     public Result<AttachmentVO> getFile(@PathVariable String id) {
         var attachment = fileService.getById(id);
         if (attachment == null) {
@@ -66,6 +71,7 @@ public class FileController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
+    @OperLog(module = LogModule.FILE, operation = LogOperation.DELETE, description = "删除附件")
     public Result<Void> deleteFile(@PathVariable String id) {
         fileService.deleteById(id);
         return Result.success(null);

@@ -1,7 +1,10 @@
 package com.approval.controller;
 
+import com.approval.annotation.OperLog;
 import com.approval.common.PageResult;
 import com.approval.common.Result;
+import com.approval.enums.LogModule;
+import com.approval.enums.LogOperation;
 import com.approval.mapper.SysUserMapper;
 import com.approval.security.JwtTokenProvider;
 import com.approval.service.NotificationService;
@@ -37,6 +40,7 @@ public class NotificationController {
      * @return 分页结果
      */
     @GetMapping
+    @OperLog(module = LogModule.NOTIFICATION, operation = LogOperation.QUERY, description = "查询通知列表", logParams = false)
     public Result<PageResult<NotificationVO>> getNotifications(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -55,6 +59,7 @@ public class NotificationController {
      * @return 操作结果
      */
     @PutMapping("/{id}/read")
+    @OperLog(module = LogModule.NOTIFICATION, operation = LogOperation.UPDATE, description = "标记通知为已读")
     public Result<Void> markAsRead(
             @PathVariable String id,
             @RequestHeader("Authorization") String token) {
@@ -70,6 +75,7 @@ public class NotificationController {
      * @return 操作结果
      */
     @PutMapping("/read-all")
+    @OperLog(module = LogModule.NOTIFICATION, operation = LogOperation.UPDATE, description = "标记所有通知为已读")
     public Result<Void> markAllAsRead(@RequestHeader("Authorization") String token) {
         Long userId = jwtTokenProvider.getUserIdFromToken(token.replace("Bearer ", ""), sysUserMapper);
         notificationService.markAllAsRead(userId);

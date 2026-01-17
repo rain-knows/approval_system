@@ -1,10 +1,13 @@
 package com.approval.controller;
 
+import com.approval.annotation.OperLog;
 import com.approval.common.PageResult;
 import com.approval.common.Result;
 import com.approval.dto.WorkflowCreateRequest;
 import com.approval.dto.WorkflowStatusRequest;
 import com.approval.dto.WorkflowUpdateRequest;
+import com.approval.enums.LogModule;
+import com.approval.enums.LogOperation;
 import com.approval.mapper.SysUserMapper;
 import com.approval.security.JwtTokenProvider;
 import com.approval.service.WorkflowService;
@@ -39,6 +42,7 @@ public class WorkflowController {
      * @return 分页结果
      */
     @GetMapping
+    @OperLog(module = LogModule.WORKFLOW, operation = LogOperation.QUERY, description = "查询工作流列表", logParams = false)
     public Result<PageResult<WorkflowVO>> getWorkflowList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -55,6 +59,7 @@ public class WorkflowController {
      * @return 工作流详情
      */
     @GetMapping("/{id}")
+    @OperLog(module = LogModule.WORKFLOW, operation = LogOperation.VIEW, description = "查看工作流详情")
     public Result<WorkflowVO> getWorkflowDetail(@PathVariable Long id) {
         WorkflowVO workflow = workflowService.getWorkflowDetail(id);
         return Result.success(workflow);
@@ -80,6 +85,7 @@ public class WorkflowController {
      * @return 工作流信息
      */
     @PostMapping
+    @OperLog(module = LogModule.WORKFLOW, operation = LogOperation.CREATE, description = "创建工作流")
     public Result<WorkflowVO> createWorkflow(
             @Valid @RequestBody WorkflowCreateRequest request,
             @RequestHeader("Authorization") String token) {
@@ -97,6 +103,7 @@ public class WorkflowController {
      * @return 工作流信息
      */
     @PutMapping("/{id}")
+    @OperLog(module = LogModule.WORKFLOW, operation = LogOperation.UPDATE, description = "更新工作流")
     public Result<WorkflowVO> updateWorkflow(
             @PathVariable Long id,
             @Valid @RequestBody WorkflowUpdateRequest request) {
@@ -111,6 +118,7 @@ public class WorkflowController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
+    @OperLog(module = LogModule.WORKFLOW, operation = LogOperation.DELETE, description = "删除工作流")
     public Result<Void> deleteWorkflow(@PathVariable Long id) {
         workflowService.deleteWorkflow(id);
         return Result.success();
@@ -124,6 +132,7 @@ public class WorkflowController {
      * @return 操作结果
      */
     @PutMapping("/{id}/status")
+    @OperLog(module = LogModule.WORKFLOW, operation = LogOperation.UPDATE, description = "更新工作流状态")
     public Result<Void> updateWorkflowStatus(
             @PathVariable Long id,
             @RequestBody WorkflowStatusRequest request) {

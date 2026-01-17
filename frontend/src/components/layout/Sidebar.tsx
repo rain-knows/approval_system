@@ -15,6 +15,7 @@ import {
     Users,
     Settings,
     Building2,
+    ScrollText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -98,6 +99,11 @@ export function Sidebar({ className }: SidebarProps) {
                     href: '/admin/workflows',
                     label: '流程配置',
                     icon: Settings,
+                },
+                {
+                    href: '/admin/logs',
+                    label: '操作日志',
+                    icon: ScrollText,
                 },
             ]
         }

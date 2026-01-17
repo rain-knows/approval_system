@@ -18,6 +18,9 @@ const routeNameMap: Record<string, string> = {
     profile: '个人资料',
     notifications: '消息通知',
     list: '审批列表',
+    departments: '部门管理',
+    'approval-types': '审批类型管理',
+    logs: '操作日志',
 }
 
 export function Breadcrumbs() {

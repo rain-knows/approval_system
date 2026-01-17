@@ -1,12 +1,18 @@
 package com.approval.controller;
 
+import com.approval.annotation.OperLog;
 import com.approval.common.PageResult;
 import com.approval.common.Result;
 import com.approval.dto.ChangePasswordRequest;
 import com.approval.dto.UserDTO;
 import com.approval.dto.UserQueryDTO;
+<<<<<<< HEAD
 import com.approval.mapper.SysUserMapper;
 import com.approval.security.JwtTokenProvider;
+=======
+import com.approval.enums.LogModule;
+import com.approval.enums.LogOperation;
+>>>>>>> 5afffefd286c08d7b68e48b97e3c0ccdb8f7f5a4
 import com.approval.service.UserService;
 import com.approval.vo.UserVO;
 import jakarta.validation.Valid;
@@ -40,6 +46,7 @@ public class UserController {
      * @return 分页结果
      */
     @GetMapping
+    @OperLog(module = LogModule.USER, operation = LogOperation.QUERY, description = "查询用户列表", logParams = false)
     public Result<PageResult<UserVO>> getPagedUsers(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long departmentId,
@@ -77,6 +84,7 @@ public class UserController {
      * @return 用户详情
      */
     @GetMapping("/{id}")
+    @OperLog(module = LogModule.USER, operation = LogOperation.VIEW, description = "查看用户详情")
     public Result<UserVO> getUserById(@PathVariable Long id) {
         UserVO user = userService.getUserById(id);
         return Result.success(user);
@@ -89,6 +97,7 @@ public class UserController {
      * @return 创建的用户
      */
     @PostMapping
+    @OperLog(module = LogModule.USER, operation = LogOperation.CREATE, description = "创建用户")
     public Result<UserVO> createUser(@Valid @RequestBody UserDTO dto) {
         UserVO user = userService.createUser(dto);
         return Result.success("用户创建成功", user);
@@ -102,6 +111,7 @@ public class UserController {
      * @return 更新后的用户
      */
     @PutMapping("/{id}")
+    @OperLog(module = LogModule.USER, operation = LogOperation.UPDATE, description = "更新用户信息")
     public Result<UserVO> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UserDTO dto) {
@@ -116,6 +126,7 @@ public class UserController {
      * @return 删除结果
      */
     @DeleteMapping("/{id}")
+    @OperLog(module = LogModule.USER, operation = LogOperation.DELETE, description = "删除用户")
     public Result<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return Result.success("用户删除成功", null);
@@ -129,6 +140,7 @@ public class UserController {
      * @return 更新结果
      */
     @PutMapping("/{id}/status")
+    @OperLog(module = LogModule.USER, operation = LogOperation.UPDATE, description = "更新用户状态")
     public Result<Void> updateUserStatus(
             @PathVariable Long id,
             @RequestBody Map<String, Integer> body) {

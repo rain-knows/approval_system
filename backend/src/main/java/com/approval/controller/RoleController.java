@@ -1,7 +1,10 @@
 package com.approval.controller;
 
+import com.approval.annotation.OperLog;
 import com.approval.common.Result;
 import com.approval.entity.SysRole;
+import com.approval.enums.LogModule;
+import com.approval.enums.LogOperation;
 import com.approval.mapper.SysRoleMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ public class RoleController {
      * @return 角色列表
      */
     @GetMapping
+    @OperLog(module = LogModule.ROLE, operation = LogOperation.QUERY, description = "查询角色列表", logParams = false)
     public Result<List<SysRole>> getAllRoles() {
         List<SysRole> roles = roleMapper.selectList(
                 new LambdaQueryWrapper<SysRole>()
