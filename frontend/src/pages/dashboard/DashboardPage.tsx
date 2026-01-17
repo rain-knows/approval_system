@@ -152,36 +152,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </motion.div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    {[
-                        { label: '待处理', value: stats.pending, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-                        { label: '已通过', value: stats.approved, icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-600/10' },
-                        { label: '已拒绝', value: stats.rejected, icon: XCircle, color: 'text-red-600', bg: 'bg-red-600/10' },
-                        { label: '总审批', value: stats.total, icon: BarChart3, color: 'text-primary', bg: 'bg-primary/10' },
-                    ].map((item, i) => (
-                        <motion.div
-                            key={item.label}
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: 0.05 * i }}
-                        >
-                            <Card className="hover-scale clickable">
-                                <CardContent className="p-6 flex items-center gap-4">
-                                    <div className={`w-10 h-10 rounded-lg ${item.bg} flex items-center justify-center`}>
-                                        <item.icon className={`w-5 h-5 ${item.color}`} />
-                                    </div>
-                                    <div>
-                                        <div className="text-2xl font-semibold">
-                                            <AnimatedNumber value={item.value} />
-                                        </div>
-                                        <div className="text-xs text-muted-foreground">{item.label}</div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    ))}
-                </div>
+
 
                 {/* 最近活动（在欢迎区域下方） */}
                 <div className="mb-8">
