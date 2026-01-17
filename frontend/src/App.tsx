@@ -19,6 +19,7 @@ import MemberManagementPage from '@/pages/admin/MemberManagementPage'
 import WorkflowConfigPage from '@/pages/admin/WorkflowConfigPage'
 import DepartmentManagementPage from '@/pages/admin/DepartmentManagementPage'
 import ApprovalTypeManagementPage from '@/pages/admin/ApprovalTypeManagementPage'
+import OperationLogPage from '@/pages/admin/OperationLogPage'
 import { Toaster } from '@/components/ui/sonner'
 
 /**
@@ -54,6 +55,7 @@ function App() {
               <Route path="/admin/workflows" element={<WorkflowConfigPage />} />
               <Route path="/admin/departments" element={<DepartmentManagementPage />} />
               <Route path="/admin/approval-types" element={<ApprovalTypeManagementPage />} />
+              <Route path="/admin/logs" element={<OperationLogPage />} />
             </Route>
           </Route>
         </Route>
