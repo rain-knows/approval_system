@@ -14,7 +14,6 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -108,8 +107,6 @@ export function Header() {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>我的账户</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
                             个人中心
                         </DropdownMenuItem>

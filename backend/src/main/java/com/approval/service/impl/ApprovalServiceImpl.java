@@ -309,10 +309,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 
     @Override
     public IPage<ApprovalRecordVO> getTodoApprovals(Long userId, int page, int pageSize) {
-        Page<ApprovalRecord> pageParam = new Page<>(page, pageSize);
-
-        // 查询用户作为当前节点审批人的记录
-        // 需要关联 approval_node 表
+        // 查询用户作为当前节点审批人的待处理节点
         LambdaQueryWrapper<ApprovalNode> nodeWrapper = new LambdaQueryWrapper<>();
         nodeWrapper.eq(ApprovalNode::getApproverId, userId)
                 .eq(ApprovalNode::getStatus, NODE_STATUS_PENDING);
@@ -322,37 +319,55 @@ public class ApprovalServiceImpl implements ApprovalService {
             return new Page<>(page, pageSize);
         }
 
-        // 获取这些节点对应的审批记录
+        // 获取这些节点对应的审批记录ID
         List<String> approvalIds = pendingNodes.stream()
                 .map(ApprovalNode::getApprovalId)
                 .distinct()
                 .toList();
 
+        // 先查询所有可能的审批记录
         LambdaQueryWrapper<ApprovalRecord> recordWrapper = new LambdaQueryWrapper<>();
         recordWrapper.in(ApprovalRecord::getId, approvalIds)
                 .in(ApprovalRecord::getStatus, STATUS_PENDING, STATUS_IN_PROGRESS);
+        List<ApprovalRecord> allRecords = approvalRecordMapper.selectList(recordWrapper);
 
-        // 再次过滤：确保当前节点顺序匹配
-        recordWrapper.orderByDesc(ApprovalRecord::getPriority)
-                .orderByDesc(ApprovalRecord::getCreatedAt);
+        // 过滤：只保留当前用户是当前节点审批人的记录
+        List<ApprovalRecord> filteredRecords = allRecords.stream()
+                .filter(record -> pendingNodes.stream()
+                        .anyMatch(node -> node.getApprovalId().equals(record.getId())
+                                && node.getNodeOrder().equals(record.getCurrentNodeOrder())))
+                .sorted((r1, r2) -> {
+                    // 先按优先级降序，再按创建时间降序
+                    int priorityCompare = Integer.compare(r2.getPriority(), r1.getPriority());
+                    if (priorityCompare != 0) {
+                        return priorityCompare;
+                    }
+                    return r2.getCreatedAt().compareTo(r1.getCreatedAt());
+                })
+                .toList();
 
-        IPage<ApprovalRecord> recordPage = approvalRecordMapper.selectPage(pageParam, recordWrapper);
+        // 手动分页
+        int total = filteredRecords.size();
+        int start = (page - 1) * pageSize;
+        int end = Math.min(start + pageSize, total);
+        List<ApprovalRecord> pagedRecords = start < total
+                ? filteredRecords.subList(start, end)
+                : List.of();
 
-        return recordPage.convert(record -> {
-            // 确保当前用户是当前节点的审批人
-            boolean isCurrentApprover = pendingNodes.stream()
-                    .anyMatch(node -> node.getApprovalId().equals(record.getId())
-                            && node.getNodeOrder().equals(record.getCurrentNodeOrder()));
-            if (!isCurrentApprover) {
-                return null;
-            }
+        // 构建分页结果
+        Page<ApprovalRecordVO> resultPage = new Page<>(page, pageSize, total);
+        List<ApprovalRecordVO> voList = pagedRecords.stream()
+                .map(record -> {
+                    SysUser initiator = sysUserMapper.selectById(record.getInitiatorId());
+                    ApprovalType type = approvalTypeMapper.selectOne(
+                            new LambdaQueryWrapper<ApprovalType>()
+                                    .eq(ApprovalType::getCode, record.getTypeCode()));
+                    return buildApprovalRecordVO(record, initiator, type);
+                })
+                .toList();
+        resultPage.setRecords(voList);
 
-            SysUser initiator = sysUserMapper.selectById(record.getInitiatorId());
-            ApprovalType type = approvalTypeMapper.selectOne(
-                    new LambdaQueryWrapper<ApprovalType>()
-                            .eq(ApprovalType::getCode, record.getTypeCode()));
-            return buildApprovalRecordVO(record, initiator, type);
-        });
+        return resultPage;
     }
 
     /**
