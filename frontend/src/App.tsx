@@ -10,6 +10,7 @@ import { MainLayout } from '@/components/layout/MainLayout'
 import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
+import WelcomePage from '@/pages/dashboard/WelcomePage'
 import ApprovalListPage from '@/pages/approval/ApprovalListPage'
 import ApprovalCreatePage from '@/pages/approval/ApprovalCreatePage'
 import ApprovalDetailPage from '@/pages/approval/ApprovalDetailPage'
@@ -41,7 +42,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           {/* 使用 MainLayout 作为布局容器 */}
           <Route element={<MainLayout />}>
-            <Route index element={<DashboardPage />} />
+            <Route index element={<WelcomePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/approval" element={<ApprovalListPage />} />
             <Route path="/approval/new" element={<ApprovalCreatePage />} />

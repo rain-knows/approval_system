@@ -11,7 +11,6 @@ import {
     LogOut,
     PlusSquare,
     Inbox,
-    CheckCircle2,
     Building2,
     Users,
     ClipboardList,
@@ -46,25 +45,19 @@ export function Sidebar({ className }: SidebarProps) {
             href: '/approval/new',
             label: '发起',
             icon: PlusSquare,
-            match: '/approval/new',
+            isActive: () => pathname === '/approval/new',
         },
         {
             href: '/approval?tab=todo',
-            label: '待办',
+            label: '审批',
             icon: Inbox,
-            match: '/approval',
-        },
-        {
-            href: '/approval?tab=done',
-            label: '已办',
-            icon: CheckCircle2,
-            match: '/approval',
+            isActive: () => pathname.startsWith('/approval') && pathname !== '/approval/new',
         },
         {
             href: '/dashboard',
             label: '数据看板',
             icon: LayoutDashboard,
-            match: '/dashboard',
+            isActive: () => pathname === '/dashboard',
         },
     ]
 
@@ -118,7 +111,7 @@ export function Sidebar({ className }: SidebarProps) {
                 <nav className="flex flex-col items-center gap-3">
                     {navItems.map((link) => {
                         const Icon = link.icon
-                        const isActive = pathname.startsWith(link.match)
+                        const isActive = link.isActive()
 
                         return (
                             <Link

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { Camera, Loader2, Shield, Eye, EyeOff, Clock, Calendar, User as UserIcon, ChevronRight, Pencil } from 'lucide-react';
+import { Loader2, Shield, Eye, EyeOff, ChevronRight, Pencil } from 'lucide-react';
 
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { useAuthStore } from '@/stores/authStore';
 import { getUserById, updateUser, changePassword, type User } from '@/services/userService';
@@ -374,7 +373,7 @@ export default function ProfilePage() {
                         <div className="flex items-center justify-between py-4 px-6">
                             <div className="flex-1">
                                 <div className="text-sm font-medium text-muted-foreground">最后登录</div>
-                                <div className="text-base mt-1 font-mono text-sm">
+                                <div className="mt-1 font-mono text-sm">
                                     {formatDateTime(userDetail?.lastLoginAt ?? null)}
                                 </div>
                             </div>
@@ -384,7 +383,7 @@ export default function ProfilePage() {
 
                 {/* 编辑资料弹窗 */}
                 <Dialog open={showEditProfile} onOpenChange={setShowEditProfile}>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="sm:max-w-106.25">
                         <DialogHeader>
                             <DialogTitle>编辑个人资料</DialogTitle>
                             <DialogDescription>
@@ -464,7 +463,7 @@ export default function ProfilePage() {
 
                 {/* 修改密码弹窗 */}
                 <Dialog open={showChangePassword} onOpenChange={setShowChangePassword}>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="sm:max-w-106.25">
                         <DialogHeader>
                             <DialogTitle>修改密码</DialogTitle>
                             <DialogDescription>

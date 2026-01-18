@@ -105,11 +105,11 @@ export default function RegisterPage() {
                 <Card className="border-border/50 shadow-2xl glass-card">
                     <CardHeader className="space-y-4 text-center pb-6">
                         {/* Logo Area */}
-                        <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-primary-500 to-primary-300 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 mb-2 transform rotate-3 transition-transform hover:rotate-0 duration-300">
+                        <div className="mx-auto w-16 h-16 bg-linear-to-tr from-primary-500 to-primary-300 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 mb-2 transform rotate-3 transition-transform hover:rotate-0 duration-300">
                             <UserPlus className="w-8 h-8 text-white" />
                         </div>
                         <div className="space-y-2">
-                            <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                            <CardTitle className="text-3xl font-bold tracking-tight bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                                 注册账户
                             </CardTitle>
                             <CardDescription className="text-base">

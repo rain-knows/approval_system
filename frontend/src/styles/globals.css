@@ -144,7 +144,7 @@
 
   /* 应用背景渐变 */
   .app-gradient {
-    @apply bg-gradient-to-br from-slate-100 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950;
+    @apply bg-linear-to-br from-slate-100 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950;
   }
 
   /* 玻璃拟态卡片 */

@@ -62,7 +62,7 @@ export default function ApprovalListPage() {
     const { user } = useAuthStore()
 
     // Tab 状态
-    const [activeTab, setActiveTab] = useState<TabType>('initiated')
+    const [activeTab, setActiveTab] = useState<TabType>('todo')
 
     // 状态
     const [approvals, setApprovals] = useState<ApprovalRecord[]>([])
