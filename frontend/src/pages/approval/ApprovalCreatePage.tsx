@@ -82,7 +82,7 @@ export default function ApprovalCreatePage() {
         }
 
         // 验证表单数据
-        const contentObj: Record<string, any> = {}
+        const contentObj: Record<string, unknown> = {}
         if (selectedType?.code === 'LEAVE') {
             if (!leaveData.leaveType || !leaveData.startDate || !leaveData.endDate || !leaveData.reason) {
                 toast.error('请填写完整的请假信息')

@@ -64,6 +64,8 @@ export interface UserRequest {
     email?: string;
     /** 手机号 */
     phone?: string;
+    /** 头像 */
+    avatar?: string;
     /** 部门ID */
     departmentId?: number | null;
     /** 角色ID列表 */
@@ -186,4 +188,23 @@ export async function deleteUser(id: number): Promise<void> {
  */
 export async function updateUserStatus(id: number, status: number): Promise<void> {
     await api.put(`/users/${id}/status`, { status });
+}
+
+/**
+ * 修改密码请求参数
+ */
+export interface ChangePasswordRequest {
+    /** 原密码 */
+    oldPassword: string;
+    /** 新密码 */
+    newPassword: string;
+}
+
+/**
+ * 修改当前用户密码
+ *
+ * @param data 修改密码请求
+ */
+export async function changePassword(data: ChangePasswordRequest): Promise<void> {
+    await api.put('/users/me/password', data);
 }

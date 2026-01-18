@@ -67,12 +67,12 @@ export async function deleteFile(id: string): Promise<void> {
  * @returns 完整下载URL
  */
 export function getFileDownloadUrl(fileUrl: string): string {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || ''
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
     // 如果fileUrl已经是完整路径，直接返回
     if (fileUrl.startsWith('http')) {
         return fileUrl
     }
-    // 移除/api前缀，因为文件访问路径不需要
+    const baseUrl = apiBaseUrl.endsWith('/api') ? apiBaseUrl.slice(0, -4) : apiBaseUrl
     return `${baseUrl}${fileUrl}`
 }
 

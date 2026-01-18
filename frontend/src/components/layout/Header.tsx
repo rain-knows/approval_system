@@ -9,6 +9,7 @@ import { Menu, User, Bell, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSidebarStore } from '@/stores/sidebarStore'
 import { useAuthStore } from '@/stores/authStore'
+import { getFileDownloadUrl } from '@/services/fileService'
 import { useNavigate } from 'react-router-dom'
 import {
     DropdownMenu,
@@ -45,12 +46,15 @@ export function Header() {
 
     // 组件挂载时获取未读数量，并设置定时刷新
     useEffect(() => {
-        fetchUnreadCount()
+        const timeout = setTimeout(fetchUnreadCount, 0)
 
         // 每 30 秒刷新一次
         const interval = setInterval(fetchUnreadCount, 30000)
 
-        return () => clearInterval(interval)
+        return () => {
+            clearTimeout(timeout)
+            clearInterval(interval)
+        }
     }, [fetchUnreadCount])
 
     useEffect(() => {
@@ -126,8 +130,16 @@ export function Header() {
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="rounded-full border border-input">
-                            <User className="h-5 w-5" />
+                        <Button variant="ghost" size="icon" className="rounded-full border border-input overflow-hidden">
+                            {user?.avatar ? (
+                                <img
+                                    src={getFileDownloadUrl(user.avatar)}
+                                    alt={user.username || "User avatar"}
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <User className="h-5 w-5" />
+                            )}
                             <span className="sr-only">User Menu</span>
                         </Button>
                     </DropdownMenuTrigger>
