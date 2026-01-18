@@ -6,13 +6,12 @@ import com.approval.common.Result;
 import com.approval.dto.ChangePasswordRequest;
 import com.approval.dto.UserDTO;
 import com.approval.dto.UserQueryDTO;
-<<<<<<< HEAD
 import com.approval.mapper.SysUserMapper;
 import com.approval.security.JwtTokenProvider;
-=======
+
 import com.approval.enums.LogModule;
 import com.approval.enums.LogOperation;
->>>>>>> 5afffefd286c08d7b68e48b97e3c0ccdb8f7f5a4
+
 import com.approval.service.UserService;
 import com.approval.vo.UserVO;
 import jakarta.validation.Valid;
