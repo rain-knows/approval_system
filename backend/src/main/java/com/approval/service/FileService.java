@@ -19,6 +19,16 @@ public interface FileService {
     AttachmentVO uploadFile(MultipartFile file, Long uploaderId);
 
     /**
+     * 上传文件（带业务类型）
+     *
+     * @param file       上传的文件
+     * @param uploaderId 上传者ID
+     * @param bizType    业务类型 (如 "avatar")
+     * @return 附件信息
+     */
+    AttachmentVO uploadFile(MultipartFile file, Long uploaderId, String bizType);
+
+    /**
      * 根据ID获取附件信息
      *
      * @param id 附件ID

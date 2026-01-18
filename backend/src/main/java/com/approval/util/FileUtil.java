@@ -34,6 +34,10 @@ public class FileUtil {
     /**
      * 文件信息内部类
      */
+    @lombok.Data
+    @lombok.Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
     public static class FileInfo {
         private String originalName;
         private String storedName;
@@ -41,55 +45,6 @@ public class FileUtil {
         private Long fileSize;
         private String fileType;
         private String mimeType;
-
-        // Getters and Setters
-        public String getOriginalName() {
-            return originalName;
-        }
-
-        public void setOriginalName(String originalName) {
-            this.originalName = originalName;
-        }
-
-        public String getStoredName() {
-            return storedName;
-        }
-
-        public void setStoredName(String storedName) {
-            this.storedName = storedName;
-        }
-
-        public String getFilePath() {
-            return filePath;
-        }
-
-        public void setFilePath(String filePath) {
-            this.filePath = filePath;
-        }
-
-        public Long getFileSize() {
-            return fileSize;
-        }
-
-        public void setFileSize(Long fileSize) {
-            this.fileSize = fileSize;
-        }
-
-        public String getFileType() {
-            return fileType;
-        }
-
-        public void setFileType(String fileType) {
-            this.fileType = fileType;
-        }
-
-        public String getMimeType() {
-            return mimeType;
-        }
-
-        public void setMimeType(String mimeType) {
-            this.mimeType = mimeType;
-        }
     }
 
     /**
@@ -99,18 +54,40 @@ public class FileUtil {
      * @return 文件存储信息
      */
     public FileInfo uploadFile(MultipartFile file) {
+        return uploadFile(file, null);
+    }
+
+    /**
+     * 上传文件（指定目录）
+     *
+     * @param file   上传的文件
+     * @param subDir 子目录（如 "avatar"），为空则按日期生成
+     * @return 文件存储信息
+     */
+    public FileInfo uploadFile(MultipartFile file, String subDir) {
         // 验证文件
         validateFile(file);
 
-        // 生成存储路径（按日期分目录）
-        String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        String relativePath;
+        String storedName;
         String extension = getExtension(file.getOriginalFilename());
-        String storedName = UUID.randomUUID().toString() + extension;
-        String relativePath = datePath + "/" + storedName;
+
+        if (subDir != null && !subDir.isEmpty()) {
+            // 指定目录模式
+            storedName = UUID.randomUUID().toString() + extension;
+            relativePath = subDir + "/" + storedName;
+        } else {
+            // 默认日期目录模式
+            String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+            storedName = UUID.randomUUID().toString() + extension;
+            relativePath = datePath + "/" + storedName;
+        }
+
         String fullPath = uploadDir + "/" + relativePath;
 
         // 创建目录
-        File dir = new File(uploadDir + "/" + datePath);
+        File fileObj = new File(fullPath);
+        File dir = fileObj.getParentFile();
         if (!dir.exists()) {
             boolean created = dir.mkdirs();
             if (!created) {
@@ -121,23 +98,21 @@ public class FileUtil {
 
         // 保存文件
         try {
-            file.transferTo(new File(fullPath));
+            file.transferTo(fileObj);
             log.info("文件上传成功: {}", fullPath);
         } catch (IOException e) {
             log.error("文件上传失败", e);
             throw new BusinessException(500, "文件上传失败：" + e.getMessage());
         }
 
-        // 构建返回信息
-        FileInfo fileInfo = new FileInfo();
-        fileInfo.setOriginalName(file.getOriginalFilename());
-        fileInfo.setStoredName(storedName);
-        fileInfo.setFilePath("/files/" + relativePath);
-        fileInfo.setFileSize(file.getSize());
-        fileInfo.setFileType(extension.replace(".", ""));
-        fileInfo.setMimeType(file.getContentType());
-
-        return fileInfo;
+        return FileInfo.builder()
+                .originalName(file.getOriginalFilename())
+                .storedName(storedName)
+                .filePath("/files/" + relativePath)
+                .fileSize(file.getSize())
+                .fileType(extension.replace(".", ""))
+                .mimeType(file.getContentType())
+                .build();
     }
 
     /**

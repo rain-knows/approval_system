@@ -11,18 +11,23 @@ import type { ApiResponse, Attachment } from '@/types'
  * 上传文件
  *
  * @param file 要上传的文件
+ * @param type 文件类型/业务类型 (如 "avatar")
  * @param onProgress 上传进度回调（可选）
  * @returns 附件信息
  */
 export async function uploadFile(
     file: File,
+    type?: string,
     onProgress?: (percent: number) => void
 ): Promise<Attachment> {
     const formData = new FormData()
     formData.append('file', file)
+    if (type) {
+        formData.append('type', type)
+    }
 
     const response = await api.post<ApiResponse<Attachment>>(
-        '/files/upload',
+        '/v1/files/upload',
         formData,
         {
             headers: {
@@ -47,7 +52,7 @@ export async function uploadFile(
  * @returns 附件信息
  */
 export async function getFileInfo(id: string): Promise<Attachment> {
-    const response = await api.get<ApiResponse<Attachment>>(`/files/${id}`)
+    const response = await api.get<ApiResponse<Attachment>>(`/v1/files/${id}`)
     return response.data.data
 }
 
@@ -57,7 +62,7 @@ export async function getFileInfo(id: string): Promise<Attachment> {
  * @param id 附件ID
  */
 export async function deleteFile(id: string): Promise<void> {
-    await api.delete(`/files/${id}`)
+    await api.delete(`/v1/files/${id}`)
 }
 
 /**
@@ -67,12 +72,12 @@ export async function deleteFile(id: string): Promise<void> {
  * @returns 完整下载URL
  */
 export function getFileDownloadUrl(fileUrl: string): string {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || ''
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
     // 如果fileUrl已经是完整路径，直接返回
     if (fileUrl.startsWith('http')) {
         return fileUrl
     }
-    // 移除/api前缀，因为文件访问路径不需要
+    const baseUrl = apiBaseUrl.endsWith('/api') ? apiBaseUrl.slice(0, -4) : apiBaseUrl
     return `${baseUrl}${fileUrl}`
 }
 

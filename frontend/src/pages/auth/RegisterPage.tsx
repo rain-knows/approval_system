@@ -9,6 +9,9 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { motion } from 'framer-motion'
+import { Loader2, UserPlus, AlertCircle } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -18,8 +21,16 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from '../../components/ui/form'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
+} from '@/components/ui/form'
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+    CardFooter
+} from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
 
@@ -33,12 +44,15 @@ const registerSchema = z.object({
     path: ["confirmPassword"],
 })
 
+type RegisterFormValues = z.infer<typeof registerSchema>
+
 export default function RegisterPage() {
     const navigate = useNavigate()
-    const [loading, setLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [globalError, setGlobalError] = useState<string | null>(null)
     const register = useAuthStore((state) => state.register)
 
-    const form = useForm<z.infer<typeof registerSchema>>({
+    const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
             username: '',
@@ -49,8 +63,9 @@ export default function RegisterPage() {
     })
 
     // 调用 authStore 的注册方法
-    const handleRegister = async (values: z.infer<typeof registerSchema>) => {
-        setLoading(true)
+    const onSubmit = async (values: RegisterFormValues) => {
+        setIsLoading(true)
+        setGlobalError(null)
         try {
             await register({
                 username: values.username,
@@ -61,116 +76,175 @@ export default function RegisterPage() {
             toast.success('注册成功，请登录')
             navigate('/login')
         } catch (error) {
-            console.error(error)
+            console.error('注册错误:', error)
             // 尝试从 API 响应中获取错误信息
             const axiosError = error as { response?: { data?: { message?: string } } }
-            toast.error(axiosError.response?.data?.message || '注册失败，请稍后重试')
+            const errorMessage = error instanceof Error ? error.message : '注册失败，请稍后重试'
+            const finalMessage = axiosError.response?.data?.message || errorMessage
+
+            setGlobalError(finalMessage)
+            toast.error(finalMessage)
         } finally {
-            setLoading(false)
+            setIsLoading(false)
         }
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-            <Card className="w-full max-w-100 border-border/40 shadow-xl bg-card">
-                <CardHeader className="space-y-2 text-center pb-2">
-                    {/* Logo Area */}
-                    <div className="mx-auto w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-2">
-                        <svg
-                            className="w-6 h-6 text-primary"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                            />
-                        </svg>
-                    </div>
-                    <CardTitle className="text-2xl font-bold tracking-tight">注册账户</CardTitle>
-                    <CardDescription>创建一个新账户以开始使用</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(handleRegister)} className="space-y-4">
-                            <FormField
-                                control={form.control}
-                                name="username"
-                                render={({ field }: { field: any }) => (
-                                    <FormItem>
-                                        <FormLabel>用户名</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="johndoe" {...field} className="h-10" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+        <div className="min-h-screen w-full flex items-center justify-center p-4 bg-muted/40 app-gradient relative overflow-hidden">
+            {/* 背景装饰 */}
+            <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+            <div className="absolute top-0 -right-4 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-md z-10"
+            >
+                <Card className="border-border/50 shadow-2xl glass-card">
+                    <CardHeader className="space-y-4 text-center pb-6">
+                        {/* Logo Area */}
+                        <div className="mx-auto w-16 h-16 bg-gradient-to-tr from-primary-500 to-primary-300 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 mb-2 transform rotate-3 transition-transform hover:rotate-0 duration-300">
+                            <UserPlus className="w-8 h-8 text-white" />
+                        </div>
+                        <div className="space-y-2">
+                            <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                                注册账户
+                            </CardTitle>
+                            <CardDescription className="text-base">
+                                创建一个新账户以开始使用
+                            </CardDescription>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                {/* 错误提示 */}
+                                {globalError && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                    >
+                                        <Alert variant="destructive" className="border-destructive/20 bg-destructive/5 text-destructive">
+                                            <AlertCircle className="h-4 w-4" />
+                                            <AlertTitle>注册失败</AlertTitle>
+                                            <AlertDescription>
+                                                {globalError}
+                                            </AlertDescription>
+                                        </Alert>
+                                    </motion.div>
                                 )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }: { field: any }) => (
-                                    <FormItem>
-                                        <FormLabel>邮箱</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="name@example.com" {...field} className="h-10" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="password"
-                                render={({ field }: { field: any }) => (
-                                    <FormItem>
-                                        <FormLabel>密码</FormLabel>
-                                        <FormControl>
-                                            <Input type="password" {...field} className="h-10" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="confirmPassword"
-                                render={({ field }: { field: any }) => (
-                                    <FormItem>
-                                        <FormLabel>确认密码</FormLabel>
-                                        <FormControl>
-                                            <Input type="password" {...field} className="h-10" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <Button type="submit" className="w-full h-10 font-medium" disabled={loading}>
-                                {loading ? (
-                                    <span className="flex items-center gap-2">
-                                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                        </svg>
-                                        注册中...
-                                    </span>
-                                ) : '注册'}
-                            </Button>
-                        </form>
-                    </Form>
-                </CardContent>
-                <CardFooter className="justify-center pt-2">
-                    <div className="text-center text-sm text-muted-foreground">
-                        已有账户？{' '}
-                        <Link to="/login" className="text-primary font-medium hover:underline">
-                            立即登录
-                        </Link>
-                    </div>
-                </CardFooter>
-            </Card>
+
+                                <FormField
+                                    control={form.control}
+                                    name="username"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-foreground/80">用户名</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="您的用户名称"
+                                                    {...field}
+                                                    disabled={isLoading}
+                                                    className="h-11 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm border-gray-200 dark:border-gray-800 focus:border-primary-500/50 transition-all duration-300"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-foreground/80">邮箱</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    type="email"
+                                                    placeholder="name@example.com"
+                                                    {...field}
+                                                    disabled={isLoading}
+                                                    className="h-11 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm border-gray-200 dark:border-gray-800 focus:border-primary-500/50 transition-all duration-300"
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <FormField
+                                        control={form.control}
+                                        name="password"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-foreground/80">密码</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="password"
+                                                        placeholder="••••••••"
+                                                        {...field}
+                                                        disabled={isLoading}
+                                                        className="h-11 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm border-gray-200 dark:border-gray-800 focus:border-primary-500/50 transition-all duration-300"
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="confirmPassword"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-foreground/80">确认密码</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="password"
+                                                        placeholder="••••••••"
+                                                        {...field}
+                                                        disabled={isLoading}
+                                                        className="h-11 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm border-gray-200 dark:border-gray-800 focus:border-primary-500/50 transition-all duration-300"
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    className="w-full h-11 font-medium text-base shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 transition-all duration-300 mt-4"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                            注册中...
+                                        </>
+                                    ) : (
+                                        '注册账号'
+                                    )}
+                                </Button>
+                            </form>
+                        </Form>
+                    </CardContent>
+                    <CardFooter className="flex justify-center pb-8">
+                        <div className="text-center text-sm text-muted-foreground">
+                            已经有账户?{' '}
+                            <Link to="/login" className="text-primary font-medium hover:underline hover:text-primary-600 transition-colors">
+                                立即登录
+                            </Link>
+                        </div>
+                    </CardFooter>
+                </Card>
+            </motion.div>
         </div>
     )
 }

@@ -63,6 +63,9 @@ function mapRole(roles: string[]): 'user' | 'admin' | 'superadmin' {
  * 返回：User 对象
  */
 function mapLoginResponseToUser(response: LoginResponse): User {
+    if (!response || !response.user) {
+        throw new Error('登录响应数据格式错误：缺少用户信息')
+    }
     const { user } = response
     return {
         id: user.id,
@@ -70,8 +73,8 @@ function mapLoginResponseToUser(response: LoginResponse): User {
         nickname: user.nickname,
         email: user.email,
         avatar: user.avatar,
-        roles: user.roles,
-        role: mapRole(user.roles),
+        roles: user.roles || [],
+        role: mapRole(user.roles || []),
     }
 }
 
@@ -89,6 +92,9 @@ export const useAuthStore = create<AuthState>()(
              */
             login: async (username: string, password: string) => {
                 const response = await authService.login({ username, password })
+                if (!response) {
+                    throw new Error('服务器未返回数据')
+                }
                 const user = mapLoginResponseToUser(response)
                 set({ user, token: response.token })
             },

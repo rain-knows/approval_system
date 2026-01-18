@@ -136,9 +136,10 @@ export default function ApprovalTypeManagementPage() {
             }
             setDialogOpen(false)
             loadData()
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('保存失败:', error)
-            toast.error(error.response?.data?.message || '保存失败')
+            const axiosError = error as { response?: { data?: { message?: string } } }
+            toast.error(axiosError.response?.data?.message || '保存失败')
         }
     }
 
@@ -151,9 +152,10 @@ export default function ApprovalTypeManagementPage() {
             await api.delete<ApiResponse<void>>(`/v1/approval-types/${id}`)
             toast.success('删除成功')
             loadData()
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('删除失败:', error)
-            toast.error(error.response?.data?.message || '删除失败')
+            const axiosError = error as { response?: { data?: { message?: string } } }
+            toast.error(axiosError.response?.data?.message || '删除失败')
         }
     }
 

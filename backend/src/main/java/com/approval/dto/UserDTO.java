@@ -54,6 +54,12 @@ public class UserDTO {
     private String phone;
 
     /**
+     * 头像文件路径
+     */
+    @Size(max = 255, message = "头像路径不能超过255个字符")
+    private String avatar;
+
+    /**
      * 所属部门ID
      */
     private Long departmentId;

@@ -67,4 +67,13 @@ public interface UserService {
      * @param status 状态: 0-禁用 1-启用
      */
     void updateUserStatus(Long id, Integer status);
+
+    /**
+     * 修改用户密码
+     *
+     * @param userId      用户ID
+     * @param oldPassword 原密码
+     * @param newPassword 新密码
+     */
+    void changePassword(Long userId, String oldPassword, String newPassword);
 }

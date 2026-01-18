@@ -4,7 +4,7 @@
  * 展示审批详情，支持审批操作（通过/拒绝）和撤回。
  */
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
@@ -37,19 +37,14 @@ export default function ApprovalDetailPage() {
     const [actionLoading, setActionLoading] = useState(false)
     const [comment, setComment] = useState('')
 
-    // 加载详情
-    useEffect(() => {
-        if (!id) return
-        loadDetail()
-    }, [id])
-
     /**
      * 加载审批详情
      */
-    const loadDetail = async () => {
+    const loadDetail = useCallback(async () => {
+        if (!id) return
         setLoading(true)
         try {
-            const data = await getApprovalDetail(id!)
+            const data = await getApprovalDetail(id)
             setRecord(data)
         } catch (error) {
             console.error('加载详情失败:', error)
@@ -57,7 +52,12 @@ export default function ApprovalDetailPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [id])
+
+    // 加载详情
+    useEffect(() => {
+        loadDetail()
+    }, [loadDetail])
 
     /**
      * 判断当前用户是否为当前节点的审批人
@@ -95,9 +95,10 @@ export default function ApprovalDetailPage() {
             toast.success(approved ? '审批已通过' : '审批已拒绝')
             setComment('')
             await loadDetail() // 重新加载详情
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('审批操作失败:', error)
-            toast.error(error.response?.data?.message || '审批操作失败')
+            const axiosError = error as { response?: { data?: { message?: string } } }
+            toast.error(axiosError.response?.data?.message || '审批操作失败')
         } finally {
             setActionLoading(false)
         }
@@ -113,9 +114,10 @@ export default function ApprovalDetailPage() {
             await withdrawApproval(id)
             toast.success('审批已撤回')
             await loadDetail()
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('撤回失败:', error)
-            toast.error(error.response?.data?.message || '撤回失败')
+            const axiosError = error as { response?: { data?: { message?: string } } }
+            toast.error(axiosError.response?.data?.message || '撤回失败')
         } finally {
             setActionLoading(false)
         }
@@ -160,6 +162,12 @@ export default function ApprovalDetailPage() {
                     </div>
                 )
             } else if (record.typeCode === 'EXPENSE') {
+                type ExpenseItem = {
+                    type?: string
+                    description?: string
+                    amount?: number
+                }
+                const items = (data.items as ExpenseItem[] | undefined) ?? []
                 return (
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
@@ -175,7 +183,7 @@ export default function ApprovalDetailPage() {
                         <div>
                             <span className="text-sm text-muted-foreground block mb-2">费用明细</span>
                             <div className="space-y-2">
-                                {data.items?.map((item: any, idx: number) => (
+                                {items.map((item, idx) => (
                                     <div key={idx} className="flex justify-between items-center p-2 bg-muted/30 rounded text-sm">
                                         <span>{item.type} - {item.description}</span>
                                         <span className="font-medium">¥{item.amount}</span>

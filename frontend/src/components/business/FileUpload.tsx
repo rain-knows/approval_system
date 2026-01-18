@@ -58,7 +58,7 @@ export function FileUpload({
         setProgress(0)
 
         try {
-            const attachment = await uploadFile(file, (percent) => {
+            const attachment = await uploadFile(file, undefined, (percent) => {
                 setProgress(percent)
             })
 

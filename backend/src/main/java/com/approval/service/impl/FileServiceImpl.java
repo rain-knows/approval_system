@@ -23,8 +23,13 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public AttachmentVO uploadFile(MultipartFile file, Long uploaderId) {
-        // 上传文件到磁盘
-        FileUtil.FileInfo fileInfo = fileUtil.uploadFile(file);
+        return uploadFile(file, uploaderId, null);
+    }
+
+    @Override
+    public AttachmentVO uploadFile(MultipartFile file, Long uploaderId, String bizType) {
+        // 上传文件到磁盘 (传递 bizType 作为子目录)
+        FileUtil.FileInfo fileInfo = fileUtil.uploadFile(file, bizType);
 
         // 保存附件记录到数据库
         Attachment attachment = Attachment.builder()

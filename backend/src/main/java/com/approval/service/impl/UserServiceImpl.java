@@ -163,6 +163,7 @@ public class UserServiceImpl implements UserService {
                 .nickname(dto.getNickname())
                 .email(dto.getEmail())
                 .phone(dto.getPhone())
+                .avatar(dto.getAvatar())
                 .departmentId(dto.getDepartmentId())
                 .status(dto.getStatus() != null ? dto.getStatus() : 1)
                 .createdAt(LocalDateTime.now())
@@ -220,6 +221,9 @@ public class UserServiceImpl implements UserService {
         user.setNickname(dto.getNickname());
         user.setEmail(dto.getEmail());
         user.setPhone(dto.getPhone());
+        if (dto.getAvatar() != null) {
+            user.setAvatar(StringUtils.hasText(dto.getAvatar()) ? dto.getAvatar() : null);
+        }
         user.setDepartmentId(dto.getDepartmentId());
         if (dto.getStatus() != null) {
             user.setStatus(dto.getStatus());
@@ -289,6 +293,37 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setStatus(status);
+        user.setUpdatedAt(LocalDateTime.now());
+        userMapper.updateById(user);
+    }
+
+    /**
+     * 修改用户密码
+     *
+     * @param userId      用户ID
+     * @param oldPassword 原密码
+     * @param newPassword 新密码
+     */
+    @Override
+    @Transactional
+    public void changePassword(Long userId, String oldPassword, String newPassword) {
+        SysUser user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(404, "用户不存在");
+        }
+
+        // 验证原密码
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException(400, "原密码不正确");
+        }
+
+        // 检查新密码与原密码是否相同
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new BusinessException(400, "新密码不能与原密码相同");
+        }
+
+        // 更新密码
+        user.setPassword(passwordEncoder.encode(newPassword));
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.updateById(user);
     }
