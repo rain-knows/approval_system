@@ -339,22 +339,16 @@
 }
 
 /* 自定义滚动条样式 */
-.h-48.overflow-y-auto::-webkit-scrollbar {
-  width: 8px;
-}
-
-.h-48.overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.h-48.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #c0c0c0;
-  border-radius: 4px;
-}
-
-.h-48.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: #a0a0a0;
+@layer base {
+  .h-48.overflow-y-auto::-webkit-scrollbar {
+    width: 8px;
+  }
+  .h-48.overflow-y-auto::-webkit-scrollbar-track {
+    @apply bg-transparent rounded;
+  }
+  .h-48.overflow-y-auto::-webkit-scrollbar-thumb {
+    @apply bg-border rounded hover:bg-muted-foreground/30 transition-colors;
+  }
 }
 
 /* ============================================

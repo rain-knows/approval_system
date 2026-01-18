@@ -14,11 +14,11 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
-import dashboardService, { type DashboardStatistics, type RecentActivity } from '@/services/dashboardService'
+import dashboardService, { type RecentActivity } from '@/services/dashboardService'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import { motion } from 'framer-motion'
-import { Clock, CheckCircle2, XCircle, BarChart3 } from 'lucide-react'
+
 
 /**
  * 仪表盘页面
@@ -28,12 +28,7 @@ import { Clock, CheckCircle2, XCircle, BarChart3 } from 'lucide-react'
 export default function DashboardPage() {
     const navigate = useNavigate()
     const { user } = useAuthStore()
-    const [stats, setStats] = useState<DashboardStatistics>({
-        pending: 0,
-        approved: 0,
-        rejected: 0,
-        total: 0,
-    })
+
     const [activities, setActivities] = useState<RecentActivity[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -48,11 +43,7 @@ export default function DashboardPage() {
     const loadData = async () => {
         try {
             setLoading(true)
-            const [statsData, activitiesData] = await Promise.all([
-                dashboardService.getStatistics(),
-                dashboardService.getRecentActivities(5)
-            ])
-            setStats(statsData)
+            const activitiesData = await dashboardService.getRecentActivities(5)
             setActivities(activitiesData)
         } catch (error) {
             console.error('加载数据失败:', error)
@@ -118,7 +109,7 @@ export default function DashboardPage() {
                     </div>
                     
                     <div className="relative z-10">
-                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary mb-15">
+                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary mb-8">
                             欢迎回来，{user?.username || '用户'}！
                         </h1>
                         <p className="text-lg text-muted-foreground whitespace-nowrap overflow-x-auto">

@@ -100,6 +100,9 @@ public class DashboardServiceImpl implements DashboardService {
     public List<RecentActivityVO> getRecentActivities(Long userId, int limit) {
         List<RecentActivityVO> activities = new ArrayList<>();
 
+        // 限制 limit 在合理范围内，防止负数或过大值影响性能
+        limit = Math.max(1, Math.min(limit, 100));
+
         // 查询我最近发起的审批
         LambdaQueryWrapper<ApprovalRecord> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ApprovalRecord::getInitiatorId, userId)
@@ -142,7 +145,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         // 按时间降序排列
         activities.sort(Comparator.comparing(RecentActivityVO::getActivityTime).reversed());
-
+        
         return activities;
     }
 
