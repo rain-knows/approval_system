@@ -4,7 +4,7 @@
  * 配置路由和路由守卫
  */
 
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import ProtectedRoute, { PublicRoute } from '@/components/layout/ProtectedRoute'
 import { MainLayout } from '@/components/layout/MainLayout'
 import LoginPage from '@/pages/auth/LoginPage'
@@ -41,6 +41,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           {/* 使用 MainLayout 作为布局容器 */}
           <Route element={<MainLayout />}>
+            <Route index element={<DashboardPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/approval" element={<ApprovalListPage />} />
             <Route path="/approval/new" element={<ApprovalCreatePage />} />
@@ -60,8 +61,6 @@ function App() {
           </Route>
         </Route>
 
-        {/* 默认重定向到仪表盘 */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         {/* 404 页面 */}
         <Route path="*" element={<NotFoundPage />} />
@@ -83,7 +82,7 @@ function NotFoundPage() {
         <h1 className="text-6xl font-bold text-muted-foreground mb-4">404</h1>
         <p className="text-xl text-muted-foreground mb-6">页面未找到</p>
         <a
-          href="/dashboard"
+          href="/"
           className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
         >
           返回首页

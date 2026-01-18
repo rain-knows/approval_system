@@ -95,7 +95,7 @@ export default function DashboardPage() {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-8 md:p-12"
+                    className="mb-8 relative overflow-hidden rounded-2xl bg-linear-to-br from-primary/10 to-secondary/10 p-8 md:p-12"
                 >
                     {/* 背景装饰元素 */}
                     <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/20 rounded-full blur-3xl"></div>
@@ -109,7 +109,7 @@ export default function DashboardPage() {
                     </div>
                     
                     <div className="relative z-10">
-                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary mb-8">
+                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-clip-text text-transparent bg-linear-to-r from-primary to-secondary mb-8">
                             欢迎回来，{user?.username || '用户'}！
                         </h1>
                         <p className="text-lg text-muted-foreground whitespace-nowrap overflow-x-auto">

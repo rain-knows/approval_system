@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import { Menu, User, Bell } from 'lucide-react'
+import { Menu, User, Bell, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSidebarStore } from '@/stores/sidebarStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -21,6 +21,7 @@ import {
 import { Breadcrumbs } from './Breadcrumbs'
 import { ThemeToggle } from './ThemeToggle'
 import { getUnreadCount } from '@/services/notificationService'
+import { CommandPalette } from './CommandPalette'
 
 
 export function Header() {
@@ -28,6 +29,7 @@ export function Header() {
     const { toggle } = useSidebarStore()
     const { user, logout, token } = useAuthStore()
     const [unreadCount, setUnreadCount] = useState(0)
+    const [commandOpen, setCommandOpen] = useState(false)
 
     /**
      * 获取未读通知数量
@@ -55,6 +57,18 @@ export function Header() {
         }
     }, [fetchUnreadCount])
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const isCtrlOrMeta = event.ctrlKey || event.metaKey
+            if (isCtrlOrMeta && event.key.toLowerCase() === 'k') {
+                event.preventDefault()
+                setCommandOpen(true)
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [])
+
     /**
      * 点击通知图标
      */
@@ -63,7 +77,7 @@ export function Header() {
     }
 
     return (
-        <header className="sticky top-0 z-30 flex h-16 w-full items-center border-b bg-background px-4 shadow-sm lg:px-6">
+        <header className="sticky top-0 z-30 flex h-16 w-full items-center border-b bg-background/80 px-4 shadow-sm backdrop-blur lg:px-6">
             <Button
                 variant="ghost"
                 size="icon"
@@ -76,6 +90,17 @@ export function Header() {
 
             <Breadcrumbs />
 
+            <div className="ml-4 hidden flex-1 items-center lg:flex">
+                <button
+                    type="button"
+                    onClick={() => setCommandOpen(true)}
+                    className="flex w-full max-w-md items-center gap-3 rounded-md border border-border/60 bg-muted/50 px-3 py-2 text-sm text-muted-foreground shadow-sm transition hover:bg-muted"
+                >
+                    <Search className="h-4 w-4" />
+                    <span className="truncate">搜索审批、人员或操作...</span>
+                    <span className="ml-auto text-xs text-muted-foreground">Ctrl + K</span>
+                </button>
+            </div>
 
             <div className="flex flex-1 items-center justify-end gap-4">
                 {/* 通知按钮 */}
@@ -130,6 +155,7 @@ export function Header() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
+            <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
         </header>
     )
 }

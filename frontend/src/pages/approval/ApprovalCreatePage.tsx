@@ -5,8 +5,8 @@
  * 使用步骤向导模式引导用户完成申请。
  */
 
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,11 +17,13 @@ import { FileUpload } from '@/components/business/FileUpload'
 import { ApprovalTypeSelector } from '@/components/business/ApprovalTypeSelector'
 import { LeaveForm, type LeaveFormData } from '@/components/business/forms/LeaveForm'
 import { ExpenseForm, type ExpenseFormData } from '@/components/business/forms/ExpenseForm'
-import { createApproval, type ApprovalType } from '@/services/approvalService'
+import { createApproval, getApprovalTypes, type ApprovalType } from '@/services/approvalService'
 import type { Attachment } from '@/types'
 
 export default function ApprovalCreatePage() {
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const presetTypeCode = useMemo(() => searchParams.get('type')?.toUpperCase(), [searchParams])
 
     // 当前步骤: 1-选择类型, 2-填写表单
     const [step, setStep] = useState(1)
@@ -48,11 +50,27 @@ export default function ApprovalCreatePage() {
     /**
      * 处理类型选择
      */
-    const handleTypeSelect = (_typeCode: string, type: ApprovalType) => {
+    const handleTypeSelect = useCallback((_typeCode: string, type: ApprovalType) => {
         setSelectedType(type)
         setTitle(`${type.name}申请 - ${new Date().toLocaleDateString()}`)
         setStep(2)
-    }
+    }, [])
+
+    useEffect(() => {
+        if (!presetTypeCode || selectedType) return
+        const loadPresetType = async () => {
+            try {
+                const types = await getApprovalTypes()
+                const matched = types.find(type => type.code === presetTypeCode)
+                if (matched) {
+                    handleTypeSelect(matched.code, matched)
+                }
+            } catch (error) {
+                console.error('加载审批类型失败:', error)
+            }
+        }
+        loadPresetType()
+    }, [handleTypeSelect, presetTypeCode, selectedType])
 
     /**
      * 处理提交
