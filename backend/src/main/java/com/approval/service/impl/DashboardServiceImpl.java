@@ -1,9 +1,7 @@
 package com.approval.service.impl;
 
-import com.approval.entity.ApprovalNode;
 import com.approval.entity.ApprovalRecord;
 import com.approval.entity.ApprovalType;
-import com.approval.mapper.ApprovalNodeMapper;
 import com.approval.mapper.ApprovalRecordMapper;
 import com.approval.mapper.ApprovalTypeMapper;
 import com.approval.service.DashboardService;
@@ -30,7 +28,6 @@ import java.util.List;
 public class DashboardServiceImpl implements DashboardService {
 
     private final ApprovalRecordMapper approvalRecordMapper;
-    private final ApprovalNodeMapper approvalNodeMapper;
     private final ApprovalTypeMapper approvalTypeMapper;
 
     /**
@@ -42,10 +39,6 @@ public class DashboardServiceImpl implements DashboardService {
     private static final int STATUS_REJECTED = 4;
     private static final int STATUS_WITHDRAWN = 5;
 
-    /**
-     * 节点状态常量
-     */
-    private static final int NODE_STATUS_PENDING = 0;
 
     @Override
     public DashboardStatisticsVO getStatistics(Long userId) {

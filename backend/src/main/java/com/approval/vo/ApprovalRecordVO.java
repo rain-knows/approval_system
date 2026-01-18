@@ -74,10 +74,6 @@ public class ApprovalRecordVO {
      */
     private Integer status;
 
-    /**
-     * 状态名称
-     */
-    private String statusName;
 
     /**
      * 当前审批节点序号
